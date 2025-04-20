@@ -1,0 +1,22 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: dashboard-gateway
+  # Đặt Gateway trong namespace istio-system là phổ biến
+  namespace: istio-system
+spec:
+  selector:
+    # Chọn các Pod của Istio ingress gateway mặc định
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 443
+      name: https-dashboard # Tên tùy chọn cho port
+      protocol: HTTPS
+    tls:
+      # PASSTHROUGH: Chuyển tiếp TLS trực tiếp đến backend service
+      # Vì Dashboard service đã tự xử lý HTTPS/TLS
+      mode: PASSTHROUGH
+    hosts:
+    # <<! QUAN TRỌNG: Thay thế bằng hostname bạn muốn sử dụng !>>
+    - "dashboard.tieuhocdong.online"

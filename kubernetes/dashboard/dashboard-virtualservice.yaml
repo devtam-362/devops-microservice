@@ -1,0 +1,29 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: dashboard-vs
+  # Phải cùng namespace với Gateway nếu tham chiếu trực tiếp bằng tên
+  namespace: istio-system
+spec:
+  hosts:
+    # <<! QUAN TRỌNG: Phải khớp với hostname trong Gateway !>>
+    - "dashboard.tieuhocdong.online"
+  gateways:
+    # Liên kết VirtualService này với Gateway đã tạo
+    - dashboard-gateway
+  tls: # Cần định tuyến TLS vì Gateway dùng PASSTHROUGH
+  - match:
+    - port: 443
+      # Khớp với Server Name Indication (SNI) mà trình duyệt gửi
+      sniHosts:
+        # <<! QUAN TRỌNG: Phải khớp với hostname trong Gateway !>>
+        - "dashboard.tieuhocdong.online"
+    route:
+    - destination:
+        # Tên đầy đủ của Service Kubernetes Dashboard
+        # Định dạng: <service-name>.<namespace>.svc.cluster.local
+        host: kubernetes-dashboard.kube-system.svc.cluster.local
+        port:
+          # Port mà Service kubernetes-dashboard lắng nghe (là 443)
+          number: 443
+      # Tùy chọn: Có thể thêm weight, timeout, retries ở đây nếu cần

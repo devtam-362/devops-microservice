@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service # Keycloak sẽ kết nối tới tên service này
+  namespace: uat
+spec:
+  selector:
+    app: mysql # Chọn các pod MySQL
+  ports:
+  - protocol: TCP
+    port: 3306       # Port của Service
+    targetPort: 3306 # Port của container (từ deployment)
+  type: ClusterIP

@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: uat
+  labels:
+    app: keycloak
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      nodePort: 30080
+    - port: 443
+      targetPort: 8433
+      name: https
+      nodePort: 30443
+  selector:
+    app: keycloak
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: uat
+  name: keycloak
+  labels:
+    app: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:26.2.0
+          args: ["start", "--cache-stack=kubernetes"]
+          volumeMounts:
+          - name: certs
+            mountPath: "/etc/certs"
+            readOnly: true
+          env:
+            - name: KC_TRANSACTION_XA_ENABLED
+              value: "true"
+            - name: KEYCLOAK_ADMIN
+              value: "devtam"
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              value: "Dev22x22"
+            - name: KC_HTTPS_CERTIFICATE_FILE
+              value: "/etc/certs/tls.crt"
+            - name: KC_HTTPS_CERTIFICATE_KEY_FILE
+              value: "/etc/certs/tls.key"
+            - name: KC_HEALTH_ENABLED
+              value: "true"
+            - name: KC_METRICS_ENABLED
+              value: "true"
+            - name: PROXY_ADDRESS_FORWARDING
+              value: "true"
+            - name: KC_HTTP_ENABLED
+              value: "true"
+            - name: KC_PROXY_HEADERS
+              value: "xforwarded"
+            - name: KC_HOSTNAME
+              value: keycloak.tieuhocdong.online
+            - name: KC_PROXY
+              value: "edge"
+            - name: KC_DB
+              value: mysql
+            - name: KC_DB_URL_HOST
+              value: mysql-service
+            - name: KC_DB_URL_DATABASE
+              value: keycloak
+            - name: KC_DB_USERNAME
+              value: "root"
+            - name: KC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_PASSWORD
+            - name: jgroups.dns.query
+              value: keycloak
+          ports:
+            - name: jgroups
+              containerPort: 7600
+            - name: https
+              containerPort: 8443
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              scheme: HTTPS
+              path: /health/ready
+              port: 9000
+            initialDelaySeconds: 60
+            periodSeconds: 2
+      volumes:
+      - name: certs
+        secret:
+          secretName: auth-tls-secret
