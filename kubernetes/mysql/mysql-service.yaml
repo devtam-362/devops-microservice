@@ -10,4 +10,5 @@ spec:
   - protocol: TCP
     port: 3306       # Port của Service
     targetPort: 3306 # Port của container (từ deployment)
-  type: ClusterIP
+    nodePort: 30306 # Port trên Node (nếu sử dụng NodePort)
+  type: NodePort
