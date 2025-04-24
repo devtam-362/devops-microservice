@@ -1,10 +1,16 @@
 
 # Tạo Istio Gateway
+```
 microk8s.kubectl apply -f dashboard-gateway.yaml
+```
 # Tạo Istio VirtualService
+```
 microk8s.kubectl apply -f dashboard-virtualservice.yaml
+```
 # Xác định Địa chỉ IP của Istio Ingress Gateway
-microk8s.kubectl get svc istio-ingressgateway -n istio-system
+```
+microk8s.kubectl get svc istio-ingressgateway -n istio-
+```
 
 
 ## Cách 1: Token của ServiceAccount 'default' trong kube-system

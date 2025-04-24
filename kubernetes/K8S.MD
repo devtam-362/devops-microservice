@@ -1,8 +1,8 @@
 # Cài đặt istio
 
 ```
-    microk8s enable dns storage istio
-    microk8s.kubectl wait --for=condition=available deployment --all -n istio-system --timeout=5m
+microk8s enable dns storage istio
+microk8s.kubectl wait --for=condition=available deployment --all -n istio-system --timeout=5m
 ```
 
 
