@@ -1,7 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: zookeeper-deployment
+  name: zookeeper
+  namespace: uat
   labels:
     app: zookeeper
 spec:
@@ -11,21 +12,32 @@ spec:
       app: zookeeper
   template:
     metadata:
+      namespace: uat
       labels:
         app: zookeeper
     spec:
       containers:
         - name: zookeeper
-          image: zookeeper:3.8
+          image: bitnami/zookeeper:3.8
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 2181
+              name: client
             - containerPort: 2888
+              name: follower
             - containerPort: 3888
+              name: election
           env:
             - name: ZOO_MY_ID
               value: "1"
             - name: ZOO_SERVERS
-              value: "server.1=zookeeper-deployment.default.svc.cluster.local:2888:3888"
+              value: "server.1=zookeeper.default.svc.cluster.local:2888:3888"
+            - name: ALLOW_ANONYMOUS_LOGIN
+              value: "yes"
+            - name: ZOO_CFG_CLIENTPORT
+              value: "2181"
+            - name: ZOO_CFG_MAXCLIENTCNXNS
+              value: "60"
           resources:
             limits:
               memory: "1Gi"
@@ -60,6 +72,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: uat
   name: zookeeper-service
   labels:
     app: zookeeper

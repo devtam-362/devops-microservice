@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authenticate
+  namespace: uat
+  labels:
+    app: authenticate
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authenticate
+  template:
+    metadata:
+      labels:
+        app: authenticate
+    spec:
+      containers:
+        - name: authenticate
+          image: devtam2x/authenticate:1.0.1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 7080
+          volumeMounts:
+            - name: application-config-volume
+              mountPath: /opt/service/resources/application.properties
+              subPath: application.properties
+            - name: keycloak-config-volume
+              mountPath: /opt/service/resources/config/authenticate/KeycloakConfig.json
+              subPath: KeycloakConfig.json
+      volumes:
+        - name: application-config-volume
+          configMap:
+            name: application-config
+        - name: keycloak-config-volume
+          configMap:
+            name: keycloak-config
